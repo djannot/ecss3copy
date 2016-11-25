@@ -1,8 +1,8 @@
 package main
 
 import (
-
   "log"
+  "os"
   "strings"
   "sync"
   "sync/atomic"
@@ -44,8 +44,8 @@ var opts struct {
 
 func main() {
   _, err := flags.Parse(&opts)
-    if err != nil {
-      log.Fatal(err)
+  if err != nil {
+    os.Exit(1)
   }
 
   s3Auth := aws.Auth{
