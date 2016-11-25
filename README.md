@@ -14,7 +14,26 @@ RUN
 --------------
 
 To start the application, run:
-docker run -it djannot/ecss3copy ./ecss3copy /?
+```
+docker run -it djannot/ecss3copy ./ecss3copy --help
+Usage:
+  ecss3copy [OPTIONS]
+
+Application Options:
+  -e, --endpoint= The ECS endpoint
+  -u, --user=     The ECS object user
+  -p, --password= The ECS object user password
+  -s, --source=   The ECS source bucket
+  -t, --target=   The ECS target bucket
+  -m, --maxkeys=  The number of keys to retrieve simultaneously from the ECS
+                  source bucket (default: 100)
+  -q, --query=    The ECS metadata search query to select the objects from the
+                  source bucket
+  -v, --verbose   Verbose mode also display the object successfully copies
+
+Help Options:
+  -h, --help      Show this help message
+```
 
 LICENSING
 --------------
