@@ -68,10 +68,10 @@ func main() {
   startTime := time.Now()
   copyBucket(copyBucketOptions)
   duration := time.Since(startTime)
-  log.Println(uint64toString(ops) + " operations executed in " + float64toString(duration.Seconds()) + " seconds")
-  log.Println(float64toString(float64(ops) / duration.Seconds()) + " operations per second")
-  log.Println(uint64toString(succeeded) + " operations succeeded")
-  log.Println(uint64toString(failed) + " operations failed")
+  log.Printf("%d operations executed in %f seconds", ops, duration.Seconds())
+  log.Printf("%s operations per second", float64(ops) / duration.Seconds())
+  log.Printf("%s operations succeeded", succeeded)
+  log.Printf("%s operations failed", failed)
 }
 
 func listObjects(wg *sync.WaitGroup, c chan KeysToSend, sourceBucket string, operation string, marker string, options interface{}) {
@@ -139,7 +139,6 @@ func copyBucket(copyBucketOptions CopyBucketOptions) {
   c := make(chan KeysToSend)
   var wg sync.WaitGroup
 
-  //wg.Add(1)
   go bucketWorker(&wg, c)
   if copyBucketOptions.Query == "" {
     listObjects(&wg, c,  copyBucketOptions.SourceBucket, "CopyObject", "", copyBucketOptions)
@@ -158,7 +157,6 @@ func bucketWorker(wg *sync.WaitGroup, c chan KeysToSend) {
       }
     }
   }
-  //wg.Done()
 }
 
 func copyObject(wg *sync.WaitGroup, key s3.Key, copyBucketOptions CopyBucketOptions, perm s3.ACL, directive string) {
@@ -180,13 +178,13 @@ func copyObject(wg *sync.WaitGroup, key s3.Key, copyBucketOptions CopyBucketOpti
     } else {
       atomic.AddUint64(&succeeded, 1)
       if opts.Verbose {
-        log.Print("Object " + key.Key + " has been copied from " + copyBucketOptions.SourceBucket + " to " + copyBucketOptions.TargetBucket)
+        log.Printf("Object %s has been copied from %s to %s", key.Key, copyBucketOptions.SourceBucket, copyBucketOptions.TargetBucket)
       }
       break
     }
     if tried >= retries {
       atomic.AddUint64(&failed, 1)
-      log.Print("Object " + key.Key + " hasn't been copied from " + copyBucketOptions.SourceBucket + " to " + copyBucketOptions.TargetBucket)
+      log.Printf("Object %s hasn't been copied from %s to %s", key.Key, copyBucketOptions.SourceBucket, copyBucketOptions.TargetBucket)
     }
   }
   wg.Done()
