@@ -41,7 +41,7 @@ build:
     # Copy binary to location that gets passed along to deploy
     - script:
         name: copy binary
-        code: cp -r ecss3copy "$WERCKER_OUTPUT_DIR"
+        code: cp ecss3copy "$WERCKER_OUTPUT_DIR"
 deploy:
     box: google/golang
     steps:

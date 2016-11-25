@@ -14,7 +14,7 @@ RUN
 --------------
 
 To start the application, run:
-docker run -it djannot/ecss3pics /?
+docker run -it djannot/ecss3copy ./ecss3copy /?
 
 LICENSING
 --------------
