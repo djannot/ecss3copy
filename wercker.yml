@@ -31,6 +31,7 @@ build:
     - script:
         name: go get
         code: |
+          go get "github.com/djannot/ecss3copy/s3"
           go get "github.com/jessevdk/go-flags"
           go get "github.com/mitchellh/goamz/aws"
 
