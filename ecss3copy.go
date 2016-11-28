@@ -69,9 +69,9 @@ func main() {
   copyBucket(copyBucketOptions)
   duration := time.Since(startTime)
   log.Printf("%d operations executed in %f seconds", ops, duration.Seconds())
-  log.Printf("%s operations per second", float64(ops) / duration.Seconds())
-  log.Printf("%s operations succeeded", succeeded)
-  log.Printf("%s operations failed", failed)
+  log.Printf("%f operations per second", float64(ops) / duration.Seconds())
+  log.Printf("%d operations succeeded", succeeded)
+  log.Printf("%d operations failed", failed)
 }
 
 func listObjects(wg *sync.WaitGroup, c chan KeysToSend, sourceBucket string, operation string, marker string, options interface{}) {

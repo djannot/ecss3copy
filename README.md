@@ -10,6 +10,13 @@ ECSS3COPY is a tool developped in Golang to copy objects from one bucket to anot
 
 Metadata search queries can also be indicated to select the objects to copy.
 
+BUILD
+--------------
+
+The Dockerfile can be used to create a Docker container for this web application.
+
+Just run the following command in the folder that contains the Dockerfile: docker build -t ecss3copy .
+
 RUN
 --------------
 
