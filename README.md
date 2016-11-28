@@ -13,7 +13,7 @@ Metadata search queries can also be indicated to select the objects to copy.
 BUILD
 --------------
 
-The Dockerfile can be used to create a Docker container for this web application.
+The Dockerfile can be used to create a Docker container for this tool.
 
 Just run the following command in the folder that contains the Dockerfile: docker build -t ecss3copy .
 
