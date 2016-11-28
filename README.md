@@ -20,7 +20,6 @@ Just run the following command in the folder that contains the Dockerfile: docke
 RUN
 --------------
 
-To start the application, run:
 ```
 docker run -it djannot/ecss3copy ./ecss3copy --help
 Usage:
