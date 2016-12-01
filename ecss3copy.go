@@ -3,7 +3,6 @@ package main
 import (
   "log"
   "os"
-  "strings"
   "sync"
   "sync/atomic"
   "time"
@@ -143,7 +142,7 @@ func copyBucket(copyBucketOptions CopyBucketOptions) {
   if copyBucketOptions.Query == "" {
     listObjects(&wg, c,  copyBucketOptions.SourceBucket, "CopyObject", "", copyBucketOptions)
   } else {
-    queryObjects(&wg, c,  copyBucketOptions.SourceBucket, strings.Replace(copyBucketOptions.Query, " ", "%20", -1), "CopyObject", "", copyBucketOptions)
+    queryObjects(&wg, c,  copyBucketOptions.SourceBucket, copyBucketOptions.Query, "CopyObject", "", copyBucketOptions)
   }
 }
 

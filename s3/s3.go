@@ -880,6 +880,10 @@ func (s3 *S3) run(req *request, resp interface{}) (*http.Response, error) {
 		return nil, err
 	}
 
+	query := u.Query().Encode()
+	strings.Replace(query, " ", "%20", -1)
+	u.RawQuery = query
+
 	hreq := http.Request{
 		URL:        u,
 		Method:     req.method,
