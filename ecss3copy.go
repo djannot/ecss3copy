@@ -28,6 +28,8 @@ type CopyBucketOptions struct {
   SourceBucket string
   TargetBucket string
   Query string
+  SourcePrefix string
+  TargetPrefix string
 }
 
 var opts struct {
@@ -36,6 +38,8 @@ var opts struct {
     Password string `short:"p" long:"password" description:"The ECS object user password" required:"true"`
     SourceBucket string `short:"s" long:"source" description:"The ECS source bucket" required:"true"`
     TargetBucket string `short:"t" long:"target" description:"The ECS target bucket" required:"true"`
+    SourcePrefix string `short:"x" long:"sourceprefix" description:"The source prefix"`
+    TargetPrefix string `short:"y" long:"targetprefix" description:"The target prefix"`
     MaxKeys int `short:"m" long:"maxkeys" description:"The number of keys to retrieve simultaneously from the ECS source bucket" default:"100"`
     MetadataSearchQuery string `short:"q" long:"query" description:"The ECS metadata search query to select the objects from the source bucket"`
     Verbose bool `short:"v" long:"verbose" description:"Verbose mode also display the object successfully copies"`
@@ -63,6 +67,8 @@ func main() {
     SourceBucket: opts.SourceBucket,
     TargetBucket: opts.TargetBucket,
     Query: opts.MetadataSearchQuery,
+    SourcePrefix: opts.SourcePrefix,
+    TargetPrefix: opts.TargetPrefix,
   }
   startTime := time.Now()
   copyBucket(copyBucketOptions)
@@ -73,9 +79,10 @@ func main() {
   log.Printf("%d operations failed", failed)
 }
 
-func listObjects(wg *sync.WaitGroup, c chan KeysToSend, sourceBucket string, operation string, marker string, options interface{}) {
+func listObjects(wg *sync.WaitGroup, c chan KeysToSend, sourceBucket string, operation string, marker string, sourceprefix string, options interface{}) {
+  log.Println("Start listing")
   s3Bucket := s3Client.Bucket(sourceBucket)
-  listResp, err := s3Bucket.List("", "", marker, opts.MaxKeys)
+  listResp, err := s3Bucket.List(sourceprefix, "", marker, opts.MaxKeys)
   if(err != nil) {
     log.Fatal(err)
   }
@@ -98,7 +105,7 @@ func listObjects(wg *sync.WaitGroup, c chan KeysToSend, sourceBucket string, ope
   wg.Wait()
 
   if(listResp.IsTruncated) {
-    listObjects(wg, c, sourceBucket, operation, lastKey, options)
+    listObjects(wg, c, sourceBucket, operation, lastKey, sourceprefix, options)
   }
 }
 
@@ -116,6 +123,7 @@ func queryObjects(wg *sync.WaitGroup, c chan KeysToSend, sourceBucket string, qu
       Key: item.ObjectName,
     }
     keys = append(keys, key)
+    wg.Add(1)
   }
 
   if(len(keys) > 0) {
@@ -140,7 +148,7 @@ func copyBucket(copyBucketOptions CopyBucketOptions) {
 
   go bucketWorker(&wg, c)
   if copyBucketOptions.Query == "" {
-    listObjects(&wg, c,  copyBucketOptions.SourceBucket, "CopyObject", "", copyBucketOptions)
+    listObjects(&wg, c,  copyBucketOptions.SourceBucket, "CopyObject", "", copyBucketOptions.SourcePrefix, copyBucketOptions)
   } else {
     queryObjects(&wg, c,  copyBucketOptions.SourceBucket, copyBucketOptions.Query, "CopyObject", "", copyBucketOptions)
   }
@@ -151,7 +159,6 @@ func bucketWorker(wg *sync.WaitGroup, c chan KeysToSend) {
     keysToSend := <- c
     for _, key := range keysToSend.Keys {
       if(keysToSend.Operation == "CopyObject") {
-        wg.Add(1)
         go copyObject(wg, key, keysToSend.Options.(CopyBucketOptions), s3.PublicRead, "REPLACE")
       }
     }
@@ -170,7 +177,7 @@ func copyObject(wg *sync.WaitGroup, key s3.Key, copyBucketOptions CopyBucketOpti
   atomic.AddUint64(&ops, 1)
   tried := 0
   for {
-    err := s3Bucket.CopyToNewBucket(key.Key, key.Key, copyBucketOptions.SourceBucket, perm, directive)
+    err := s3Bucket.CopyToNewBucket(key.Key, copyBucketOptions.TargetPrefix + key.Key, copyBucketOptions.SourceBucket, perm, directive)
     if(err != nil) {
       log.Print(err)
       tried++
